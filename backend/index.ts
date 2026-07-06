@@ -1,9 +1,14 @@
+import {tavily} from "@tavily/core";
 import express from "express";
+
+const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
+
 const app = express();
+app.use(express.json());
 
 app.post("/purplexity_ask", (req, res)=>{
     //Step-1 get query from the user 
-    const query = req.body;
+    const query = req.body.query;
 
     //Step-2 make sure the user has the access/credits to hit the endpoint.
 
