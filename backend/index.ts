@@ -70,6 +70,14 @@ app.post("/purplexity_ask", async (req, res) => {
 
 });
 
+app.post("/purplexity_ask/follow_up", async (req, res)=>{
+    //step1 get the existing chat from the data base
+    //step2 forward the full histroy to the llm
+    //step2.5 TODO: - Do context Engineering here.... 
+    //step3 stream the response to the user 
+
+})
+
 app.listen(3000, () => {
   console.log("working");
 });
