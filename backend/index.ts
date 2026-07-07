@@ -57,11 +57,13 @@ app.post("/purplexity_ask", async (req, res) => {
     res.write(textPart); //text must be given in stream format
   }
 
-  res.write("-----------SOURCES--------------\n");
+  res.write("<SOURCES>");
 
   //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
 
-  webSearchResult.forEach((item) => res.write(JSON.stringify(item)));
+  res.write(JSON.stringify(webSearchResult.map(result => ({url : result.url}))));
+
+  res.write("</SOURCES>");
 
   //step-8 Close the event stream.....
   res.end();
