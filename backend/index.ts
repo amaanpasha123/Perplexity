@@ -10,6 +10,19 @@ const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
 const app = express();
 app.use(express.json());
 
+//Signup
+app.post("signup", async(req, res)=>{
+
+});
+
+//Signin
+app.post("signin", async(req, res)=>{
+
+});
+
+//Past Conversations get
+
+
 app.post("/purplexity_ask", async (req, res) => {
   //Step-1 get query from the user
   const query = req.body.query; //give the best rust resources
