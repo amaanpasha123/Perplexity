@@ -28,28 +28,28 @@ app.post("/purplexity_ask", async (req, res) => {
   const webSearchResult = webSearchResponse.results;
   //Step-5 do some context engineering on the prompt + web search responses...
 
-  //Step-6 hit the llm and stream back the response......
+    //Step-6 hit the llm and stream back the response......
 
-  const prompt = PROMPT_TEMPLATE.replace(
-    "{{WEB_SEARCH_RESULTS}}",
-    JSON.stringify(webSearchResult),
-  ).replace("{{USER_QUERY}}", query);
+    const prompt = PROMPT_TEMPLATE.replace(
+        "{{WEB_SEARCH_RESULTS}}",
+        JSON.stringify(webSearchResult),
+    ).replace("{{USER_QUERY}}", query);
 
-app.post("/purplexity_ask", async (req, res) => {
-  const result = streamText({
-    model: 'openai/gpt-5.4',
-    prompt: prompt,
-    system: SYSTEM_PROMPT,
-    output: Output.object({
-      schema: z.object({
-        followUps: z.array(z.string()),
-        answer: z.string(),
-      }),
-    }),
-  }); // ✅ close streamText call here
+    app.post("/purplexity_ask", async (req, res) => {
+        const result = streamText({
+            model: 'openai/gpt-5.4',
+            prompt: prompt,
+            system: SYSTEM_PROMPT,
+            output: Output.object({
+                schema: z.object({
+                    followUps: z.array(z.string()),
+                    answer: z.string(),
+                }),
+            }),
+    }); // ✅ close streamText call here
 
   for await (const textPart of result.textStream) {
-    res.write(textPart);
+    res.write(textPart); //text must be given in stream format
   }
 
   res.write("-----------SOURCES--------------\n");
@@ -58,6 +58,10 @@ app.post("/purplexity_ask", async (req, res) => {
   //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
 
   webSearchResult.forEach(result => res.write(JSON.stringify(result)));
+
+
+  //step-8 Close the event stream.....
+  res.end();
 
 });
 
