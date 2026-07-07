@@ -1,7 +1,10 @@
 import { tavily } from "@tavily/core";
-import { streamText } from "ai";
+import { Output, streamText } from "ai";
+import 'dotenv/config';
 import express from "express";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "./prompt";
+import z, { string } from "zod";
+
 
 const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
@@ -18,7 +21,7 @@ app.post("/purplexity_ask", async (req, res) => {
 
   //Step-4 if no the do web search to gather the resources.....
 
-  const webSearchResponse = await client.search(query, {
+    const webSearchResponse = await client.search(query, {
     searchDepth: "advanced",
   });
 
@@ -27,18 +30,35 @@ app.post("/purplexity_ask", async (req, res) => {
 
   //Step-6 hit the llm and stream back the response......
 
-  const prompt = PROMPT_TEMPLATE
-  .replace("{{WEB_SEARCH_RESULTS}}", JSON.stringify(webSearchResult))
-  .replace("{{USER_QUERY}}", query);
+  const prompt = PROMPT_TEMPLATE.replace(
+    "{{WEB_SEARCH_RESULTS}}",
+    JSON.stringify(webSearchResult),
+  ).replace("{{USER_QUERY}}", query);
 
-
+app.post("/purplexity_ask", async (req, res) => {
   const result = streamText({
-    model: "openai/gpt-5.4",
+    model: 'openai/gpt-5.4',
     prompt: prompt,
-    system: SYSTEM_PROMPT
-  });
+    system: SYSTEM_PROMPT,
+    output: Output.object({
+      schema: z.object({
+        followUps: z.array(z.string()),
+        answer: z.string(),
+      }),
+    }),
+  }); // ✅ close streamText call here
 
-  //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
+  for await (const textPart of result.textStream) {
+    res.end(textPart);
+  }
+
+  //Step-7 also stream back the sources and the follow up questions .....(which we will get from...)
 });
 
-app.listen(3000);
+    //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
+  });
+});
+
+app.listen(3000, () => {
+  console.log("working");
+});

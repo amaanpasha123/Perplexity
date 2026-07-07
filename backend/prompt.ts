@@ -6,10 +6,26 @@ to answer the query.
 
 You also need to return follow up questions to the user based on the question they have asked.
 The response needs to be structured like this -
-{
-    followUps: [string],
-    answer: string
-}
+    <ANSWER>
+    This is the actuall query should be answered
+    </ANSWER>
+    <FOLLOW_UPS>
+        <question>first follow up question </question>
+        <question>second follow up question </question>
+        <question>third follow up question </question>
+    </FOLLOW_UPS>
+
+    Example-
+        Query-I want to learn rust can you suggest me the best way to do it.
+     
+    <ANSWER>
+        for sure the best resource to learn the rust is the rust book
+    </ANSWER>
+
+    <FOLLOW_UPS>
+        <question> How can i learn advanced rust </question>
+        <question> How rust is better than the typescript </question>
+    </FOLLOW_UPS>
 `;
 
 export const PROMPT_TEMPLATE = `
