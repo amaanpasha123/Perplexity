@@ -49,10 +49,16 @@ app.post("/purplexity_ask", async (req, res) => {
   }); // ✅ close streamText call here
 
   for await (const textPart of result.textStream) {
-    res.end(textPart);
+    res.write(textPart);
   }
 
+  res.write("-----------SOURCES--------------\n");
+
+
   //Step-7 also stream back the sources and the follow up questions .....(which we will get from...)
+
+  webSearchResult.forEach(result => res.write(JSON.stringify(result)));
+
 });
 
     //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
