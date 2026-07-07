@@ -39,7 +39,7 @@ app.post("/purplexity_ask", async (req, res) => {
   ).replace("{{USER_QUERY}}", query);
 
   const result = streamText({
-    model: "openai/gpt-5.4",
+    model: "openai/gpt-5.4-mini",
     prompt: prompt,
     system: SYSTEM_PROMPT,
     output: Output.object({
@@ -51,7 +51,7 @@ app.post("/purplexity_ask", async (req, res) => {
   }); // ✅ close streamText call here
 
   res.header("Cache-Control", "no-cache");
-  res.header("Content-Type", "text/event-stream");
+//   res.header("Content-Type", "text/event-stream");
 
   for await (const textPart of result.textStream) {
     res.write(textPart); //text must be given in stream format
@@ -65,7 +65,7 @@ app.post("/purplexity_ask", async (req, res) => {
 
   //step-8 Close the event stream.....
   res.end();
-  
+
 });
 
 app.listen(3000, () => {
