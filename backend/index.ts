@@ -55,15 +55,15 @@ app.post("/purplexity_ask", async (req, res) => {
   res.write("-----------SOURCES--------------\n");
 
 
-  //Step-7 also stream back the sources and the follow up questions .....(which we will get from...)
+  //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
 
   webSearchResult.forEach(result => res.write(JSON.stringify(result)));
 
 });
 
-    //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
-  });
+
 });
+
 
 app.listen(3000, () => {
   console.log("working");
