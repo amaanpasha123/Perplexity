@@ -21,7 +21,14 @@ app.post("signin", async(req, res)=>{
 });
 
 //Past Conversations get
+app.get("/conversations", async(req, res)=>{
+   
+});
 
+//past conversation get
+app.get("/conversation/:conversationId", async(req, res)=>{
+
+})
 
 app.post("/purplexity_ask", async (req, res) => {
   //Step-1 get query from the user
