@@ -4,11 +4,14 @@ import "dotenv/config";
 import express from "express";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "./prompt";
 import z, { string } from "zod";
+import { prisma } from "./db";
 
 const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
 const app = express();
 app.use(express.json());
+
+
 
 //Signup
 app.post("signup", async(req, res)=>{
