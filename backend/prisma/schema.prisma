@@ -14,7 +14,7 @@ datasource db {
 
 model User{
   id             String     @id     @default(uuid())
-  email          String,
+  email          String
   provider       AuthProvider
   name           String
   conversation   Conversation[]
