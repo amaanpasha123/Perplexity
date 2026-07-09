@@ -1,13 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.VITE_SUPABASE_PUBLISHABLE_KEY!,
-);
+import { createClient } from "@/lib/client";
+
+const supabase = createClient();
 
 export default function Auth() {
   async function login(provider: "github" | "google") {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
+      provider: provider,
     });
 
     if(error){
@@ -17,11 +15,11 @@ export default function Auth() {
     }
   }
 
-  
+
   return (
     <div>
-      <button onClick={() => login("Google")}>Login with Google</button>
-      <button onClick={() => login("Github")}>Login with Github</button>
+      <button onClick={()=> login('google')}>Login with Google</button>
+      <button onClick={() => login('github')}>Login with Github</button>
     </div>
   );
 }

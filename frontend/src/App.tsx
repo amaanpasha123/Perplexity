@@ -1,5 +1,5 @@
-import { Route } from "lucide-react";
-import { BrowserRouter, Routes } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router";
+import Auth from "./pages/Auth";
 
 export function App() {
   return<BrowserRouter>
