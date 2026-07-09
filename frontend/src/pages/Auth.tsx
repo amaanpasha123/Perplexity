@@ -1,5 +1,3 @@
-import { LogIn } from "lucide-react";
-
 export default function Auth(){
 
     function login() {
