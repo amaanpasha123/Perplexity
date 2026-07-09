@@ -13,15 +13,6 @@ app.use(express.json());
 
 
 
-//Signup
-app.post("signup", async(req, res)=>{
-
-});
-
-//Signin
-app.post("signin", async(req, res)=>{
-
-});
 
 //Past Conversations get
 app.get("/conversations", async(req, res)=>{
