@@ -24,7 +24,13 @@ export default function Dashboard() {
         navigate("/auth");
     }}>
         Sign in
-        </button>}
-    {user?.email}
-    </div>;
+    </button>}
+    {user && <div>
+    <button onClick={()=> {supabase.auth.signOut()
+        setUser(null);
+    }}>
+        Sign out
+    </button>
+        </div>}
+    </div>
 }
