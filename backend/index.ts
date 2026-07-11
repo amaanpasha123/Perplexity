@@ -5,26 +5,27 @@ import express from "express";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "./prompt";
 import z, { string } from "zod";
 import { prisma } from "./db";
+import { middleware } from "./middleware";
+import cors from "cors";
 
 const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
 const app = express();
 app.use(express.json());
-
-
+app.use(cors());
 
 
 //Past Conversations get
-app.get("/conversations", async(req, res)=>{
-   
+app.get("/conversations", middleware, async (req, res) => {
+  res.json({
+    userId: req.userId,
+  });
 });
 
 //past conversation get
-app.get("/conversation/:conversationId", async(req, res)=>{
+app.get("/conversation/:conversationId", middleware, async (req, res) => {});
 
-})
-
-app.post("/purplexity_ask", async (req, res) => {
+app.post("/purplexity_ask", middleware, async (req, res) => {
   //Step-1 get query from the user
   const query = req.body.query; //give the best rust resources
 
@@ -65,7 +66,7 @@ app.post("/purplexity_ask", async (req, res) => {
   }); // ✅ close streamText call here
 
   res.header("Cache-Control", "no-cache");
-//   res.header("Content-Type", "text/event-stream");
+  //   res.header("Content-Type", "text/event-stream");
 
   for await (const textPart of result.textStream) {
     res.write(textPart); //text must be given in stream format
@@ -75,23 +76,23 @@ app.post("/purplexity_ask", async (req, res) => {
 
   //Step-7 also stream back the sources and the follow up questions .....(which we will get from another prallell LLM also)
 
-  res.write(JSON.stringify(webSearchResult.map(result => ({url : result.url}))));
+  res.write(
+    JSON.stringify(webSearchResult.map((result) => ({ url: result.url }))),
+  );
 
   res.write("</SOURCES>");
 
   //step-8 Close the event stream.....
   res.end();
-
 });
 
-app.post("/purplexity_ask/follow_up", async (req, res)=>{
-    //step1 get the existing chat from the data base
-    //step2 forward the full histroy to the llm
-    //step2.5 TODO: - Do context Engineering here.... 
-    //step3 stream the response to the user 
+app.post("/purplexity_ask/follow_up", middleware, async (req, res) => {
+  //step1 get the existing chat from the data base
+  //step2 forward the full histroy to the llm
+  //step2.5 TODO: - Do context Engineering here....
+  //step3 stream the response to the user
+});
 
-})
-
-app.listen(3000, () => {
+app.listen(3001, () => {
   console.log("working");
 });
