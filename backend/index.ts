@@ -3,10 +3,12 @@ import { Output, streamText } from "ai";
 import "dotenv/config";
 import express from "express";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "./prompt";
-import z, { string } from "zod";
+import z, { slugify, string } from "zod";
 import { prisma } from "./db";
 import { middleware } from "./middleware";
 import cors from "cors";
+import { create } from "node:domain";
+import { StatementSync } from "node:sqlite";
 
 const client = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
@@ -17,13 +19,41 @@ app.use(cors());
 
 //Past Conversations get
 app.get("/conversations", middleware, async (req, res) => {
-  res.json({
-    userId: req.userId,
-  });
+  const conversation = prisma.conversation.findMany({
+    where :{
+        userId:req.userId
+    },
+    select : {
+      id : true,
+      title : true,
+      slug : true
+    }
+  })
+  res.json({conversation});
 });
 
 //past conversation get
-app.get("/conversation/:conversationId", middleware, async (req, res) => {});
+app.get("/conversation/:conversationId", middleware, async (req, res) => {
+
+  const conversationIdParam = req.params.conversationId;
+  const conversationId = Array.isArray(conversationIdParam)
+    ? conversationIdParam[0]
+    : conversationIdParam;
+
+  if (!conversationId) {
+    return res.status(400).json({ message: "conversationId is required" });
+  }
+
+
+  prisma.conversation.findFirst({
+    where:{
+      id: conversationId,
+      userId : req.userId
+    }
+  })
+
+
+});
 
 app.post("/purplexity_ask", middleware, async (req, res) => {
   //Step-1 get query from the user
@@ -33,17 +63,25 @@ app.post("/purplexity_ask", middleware, async (req, res) => {
     return res.status(400).json({ error: "query is required" });
   }
 
-  //Step-2 make sure the user has the access/credits to hit the endpoint.
-
-  //Step-3 check we have web search index for the similar query or not...
-
-  //Step-4 if no the do web search to gather the resources.....
-
   const webSearchResponse = await client.search(query, {
     searchDepth: "advanced",
   });
 
+
   const webSearchResult = webSearchResponse.results;
+
+  //do associate stream with presistance conversation id
+  const conversation = await prisma.conversation.create({
+    data : {
+      title : query.slice(0,80),
+      slug : String(slugify(query)),
+      userId : req.userId,
+      messages : {
+        create : {content : query, role : 'User'}
+      }
+    }
+  });
+
   //Step-5 do some context engineering on the prompt + web search responses...
 
   //Step-6 hit the llm and stream back the response......
