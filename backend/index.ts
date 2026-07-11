@@ -3,7 +3,7 @@ import { Output, streamText } from "ai";
 import "dotenv/config";
 import express from "express";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "./prompt";
-import z, { slugify, string } from "zod";
+import z, {  string } from "zod";
 import { prisma } from "./db";
 import { middleware } from "./middleware";
 import cors from "cors";
@@ -16,25 +16,32 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")   // remove non-word chars
+    .replace(/[\s_-]+/g, "-")   // collapse whitespace/underscores into single dash
+    .replace(/^-+|-+$/g, "");   // trim leading/trailing dashes
+}
 
 //Past Conversations get
 app.get("/conversations", middleware, async (req, res) => {
   const conversation = prisma.conversation.findMany({
-    where :{
-        userId:req.userId
+    where: {
+      userId: req.userId,
     },
-    select : {
-      id : true,
-      title : true,
-      slug : true
-    }
-  })
-  res.json({conversation});
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+  });
+  res.json({ conversation });
 });
 
 //past conversation get
 app.get("/conversation/:conversationId", middleware, async (req, res) => {
-
   const conversationIdParam = req.params.conversationId;
   const conversationId = Array.isArray(conversationIdParam)
     ? conversationIdParam[0]
@@ -44,15 +51,12 @@ app.get("/conversation/:conversationId", middleware, async (req, res) => {
     return res.status(400).json({ message: "conversationId is required" });
   }
 
-
   prisma.conversation.findFirst({
-    where:{
+    where: {
       id: conversationId,
-      userId : req.userId
-    }
-  })
-
-
+      userId: req.userId,
+    },
+  });
 });
 
 app.post("/purplexity_ask", middleware, async (req, res) => {
@@ -67,19 +71,23 @@ app.post("/purplexity_ask", middleware, async (req, res) => {
     searchDepth: "advanced",
   });
 
-
   const webSearchResult = webSearchResponse.results;
+
+  const userId = req.userId;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
   //do associate stream with presistance conversation id
   const conversation = await prisma.conversation.create({
-    data : {
-      title : query.slice(0,80),
-      slug : String(slugify(query)),
-      userId : req.userId,
-      messages : {
-        create : {content : query, role : 'User'}
-      }
-    }
+    data: {
+      title: query.slice(0, 80),
+      slug: String(slugify(query)),
+      userId: userId,
+      Messages: {
+        create: { content: query, role: "User" },
+      },
+    },
   });
 
   //Step-5 do some context engineering on the prompt + web search responses...
