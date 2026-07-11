@@ -28,6 +28,8 @@ export async function middleware(
     try {
       await prisma.user.create({
         data: {
+          id : data.data.user?.id,
+          supabaseId : data.data.user?.id!,
           email: data.data.user?.email!,
           provider:
             data.data.user?.app_metadata.provider === "google"
@@ -36,6 +38,7 @@ export async function middleware(
           name: data.data.user?.user_metadata.full_name,
         },
       });
+
     }catch(e) {
       console.log(e);
     }
